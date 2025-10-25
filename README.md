@@ -31,26 +31,6 @@ It covers the **entire machine learning workflow** — from initial data analysi
 The dataset contains **17 features** related to eating habits (e.g., `FAVC`, `FCVC`) and physical condition (e.g., `Age`, `Weight`, `Height`, `CALC`).  
 The target variable is **`NObesity`**, which represents the obesity level category.  
 
-**Expected file path:**  
-The project is organized into the following directories and main scripts:
-
-├── data/
-│   └── obesity_data.csv        # Raw dataset
-├── optimalisation/
-│   ├── gradient1.py ...        # Part 3: Custom model optimizations (e.g., CV, regularization)
-│   └── scikit1.py ... scikit5.py # Part 3: Scikit-learn optimization tasks
-├── results/                      # Output statistics and plots
-├── scripts/
-│   ├── load_data.py            # Script to load the dataset
-│   ├── data_analysis_main.py   # Generates descriptive statistics (output to /results)
-│   ├── generate_plots.py       # Generates and saves all EDA visualizations
-│   ├── pipeline.py             # Sklearn Logistic Regression
-│   ├── pipeline2.py            # Sklearn Random Forest & SVC
-│   ├── closedFormula.py        # Numpy implementation of Linear Regression (Normal Eq.)
-│   └── gradientDescent.py      # Numpy implementation of Gradient Descent
-├── .gitignore
-└── requirements.txt            # Python dependencies
-
 # Core Features & Methodologies
 
 ## Part 1: Exploratory Data Analysis (EDA)
