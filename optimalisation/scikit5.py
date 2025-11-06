@@ -8,7 +8,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
-# --- 1. Wczytanie danych ---
 data = pd.read_csv('data/obesity_data.csv')
 
 selected_cols = [
@@ -21,12 +20,10 @@ data = data[selected_cols]
 X = data.drop("NObeyesdad", axis=1)
 y = data["NObeyesdad"]
 
-# --- 2. Podział na zbiór treningowy i testowy ---
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-# --- 3. Przetwarzanie danych ---
 numerical_cols = X.select_dtypes(include=['int64', 'float64']).columns
 categorical_cols = X.select_dtypes(include=['object', 'category']).columns
 
@@ -45,7 +42,6 @@ preprocessor = ColumnTransformer([
     ('cat', categorical_transformer, categorical_cols)
 ])
 
-# --- 4. Pipeline dla modeli ---
 pipe_rf = Pipeline([
     ('preprocessor', preprocessor),
     ('classifier', RandomForestClassifier(random_state=42))
@@ -56,7 +52,6 @@ pipe_svc = Pipeline([
     ('classifier', SVC())
 ])
 
-# --- 5. Gridy hiperparametrów ---
 param_grid_rf = {
     'classifier__n_estimators': [50, 100, 150],
     'classifier__max_depth': [None, 10, 20],
@@ -69,8 +64,7 @@ param_grid_svc = {
     'classifier__gamma': ['scale', 'auto']
 }
 
-# --- 6. RandomizedSearchCV dla Random Forest ---
-print("\n==== Random Forest: kombinacje hiperparametrów i accuracy ====\n")
+print("\nRandom Forest: hiperparameters i accuracy:\n")
 grid_rf = RandomizedSearchCV(pipe_rf, param_grid_rf, cv=3, scoring='accuracy', verbose=0)
 grid_rf.fit(X_train, y_train)
 
@@ -80,8 +74,7 @@ for idx, row in rf_results.iterrows():
     print(f"Mean Accuracy: {row['mean_test_score']:.4f}")
     print("---------------------------------------------------------")
 
-# --- 7. RandomizedSearchCV dla SVC ---
-print("\n==== SVC: kombinacje hiperparametrów i accuracy ====\n")
+print("\nSVC: hiperparameters i accuracy:\n")
 grid_svc = RandomizedSearchCV(pipe_svc, param_grid_svc, cv=5, scoring='accuracy', verbose=0)
 grid_svc.fit(X_train, y_train)
 
@@ -90,3 +83,4 @@ for idx, row in svc_results.iterrows():
     print(f"Params: {row['params']}")
     print(f"Mean Accuracy: {row['mean_test_score']:.4f}")
     print("----------------------------------------------------------------")
+
