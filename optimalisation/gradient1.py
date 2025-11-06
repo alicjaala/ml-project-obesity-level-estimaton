@@ -8,7 +8,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.metrics import classification_report, accuracy_score
 import time
 
-# 1. Wczytanie danych
 data = pd.read_csv('data/obesity_data.csv')
 selected_cols = [
     'Gender', 'Age', 'Height', 'Weight', 'family_history_with_overweight',
@@ -20,7 +19,6 @@ data = data[selected_cols]
 X = data.drop("NObeyesdad", axis=1)
 y = data["NObeyesdad"]
 
-# 2. Przetwarzanie
 numerical_cols = X.select_dtypes(include=['int64', 'float64']).columns
 categorical_cols = X.select_dtypes(include=['object']).columns
 
@@ -85,31 +83,27 @@ def evaluate_model(X, y_true, weights, encoder, name="TEST"):
     print(f"[{name}] Loss: {loss:.4f}")
     print(f"[{name}] Raport klasyfikacji:\n", classification_report(true, preds, target_names=encoder.categories_[0]))
 
-#tak samo jak wcześniej - tworzę 3 foldy z zachowaniem proporcji klas
 skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
 fold = 1
 accuracies = []
 
-for train_idx, val_idx in skf.split(X, y):          #split dzieli zbiór
+for train_idx, val_idx in skf.split(X, y):       
     print(f"\n=========== Fold {fold} ===========")
-    X_train_raw, X_val_raw = X.iloc[train_idx], X.iloc[val_idx]     #iloc wybiera odpowiednie wiersze wg indeksów
+    X_train_raw, X_val_raw = X.iloc[train_idx], X.iloc[val_idx]    
     y_train_raw, y_val_raw = y.iloc[train_idx], y.iloc[val_idx]
 
-    # Przetwarzanie danych
     X_train = preprocessor.fit_transform(X_train_raw)
     X_val = preprocessor.transform(X_val_raw)
 
     y_train_encoded = encoder.fit_transform(y_train_raw.to_numpy().reshape(-1, 1))
     y_val_encoded = encoder.transform(y_val_raw.to_numpy().reshape(-1, 1))
 
-    # Trening
     start_time = time.time()
     weights = logistic_regression_train(X_train, y_train_encoded, X_val, y_val_encoded)
     end_time = time.time()
     print(f"Czas treningu: {end_time - start_time:.2f} sekund")
 
-    # Ewaluacja
     evaluate_model(X_val, y_val_encoded, weights, encoder, name=f"FOLD {fold}")
     probs = predict(X_val, weights)
     preds = np.argmax(probs, axis=1)
@@ -118,6 +112,7 @@ for train_idx, val_idx in skf.split(X, y):          #split dzieli zbiór
 
     fold += 1
 
-print("\n=========== PODSUMOWANIE ===========")
-print(f"Średnia dokładność (accuracy): {np.mean(accuracies):.4f}")
-print(f"Odchylenie standardowe:         {np.std(accuracies):.4f}")
+print("\nRESULTS")
+print(f"Average accuracy: {np.mean(accuracies):.4f}")
+print(f"Standard deviation:         {np.std(accuracies):.4f}")
+
