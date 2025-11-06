@@ -44,7 +44,7 @@ The target variable is **`NObesity`**, which represents the obesity level catego
   - Mean, median, min/max, standard deviation, percentiles, missing values
 - **Categorical features:**
   - Unique classes, proportions, missing values  
-  *(Implemented in `scripts/data_analysis_main.py`)*
+  *(Implemented in `scripts/pipeline.py`, `scripts/pipeline2.py`)*
 
 ### Visualization
 *(Implemented in `scripts/generate_plots.py`)*  
@@ -63,14 +63,14 @@ The target variable is **`NObesity`**, which represents the obesity level catego
   - `sklearn.pipeline.Pipeline`
   - `sklearn.compose.ColumnTransformer`
   - `SimpleImputer` and `OneHotEncoder`  
-  *(Implemented in `scripts/pipeline.py`)*
+  *(Implemented in `scripts/pipeline.py`, `scripts/pipeline2.py`)*
 
 ### Baseline Models
 - Training and evaluation of three scikit-learn models (e.g.):
   - Logistic Regression
   - Decision Tree
   - Support Vector Machine (SVM)  
-  *(Implemented in `scripts/pipeline2.py`)*
+  *(Implemented in `scripts/pipeline.py`, `scripts/pipeline2.py`)*
 
 ### Custom NumPy Models
 - **Linear Regression (Closed-Form):**  
