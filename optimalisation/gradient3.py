@@ -53,27 +53,22 @@ y_train_encoded = encoder.fit_transform(y_train_raw.to_numpy().reshape(-1, 1))
 y_val_encoded = encoder.transform(y_val_raw.to_numpy().reshape(-1, 1))
 y_test_encoded = encoder.transform(y_test_raw.to_numpy().reshape(-1, 1))
 
-#przekształca macierz liczb w prawdopodobieństwa sumujące się do 1 dla każdego wiersza
 def softmax(z):
-    exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))  #exp(x) = e ** x
+    exp_z = np.exp(z - np.max(z, axis=1, keepdims=True)) 
     return exp_z / np.sum(exp_z, axis=1, keepdims=True)
 
-#funkcja liczy średnią stratę między przewidywanymi a prawdziwymi etykietami - ocenia jakość
 def cross_entropy_loss(y_true, y_pred):
-    eps = 1e-15 #bardzo mała liczba, zapobiega logarytmowi z 0
-    y_pred = np.clip(y_pred, eps, 1 - eps)  #clip ogranicza wartości do określonego zakresu, unikamy błędów numerycznych
+    eps = 1e-15 
+    y_pred = np.clip(y_pred, eps, 1 - eps) 
     return -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
 
-#lambda im większa tym mocniej każe duże wagi
 def logistic_regression_train(X, Y, X_val, Y_val, lr=0.1, epochs=1000, batch_size=64, reg_lambda=0.0, reg_type=None):
     n_samples, n_features = X.shape
     n_classes = Y.shape[1]
 
-    # Dodaj bias do wejścia
     X_b = np.hstack([np.ones((n_samples, 1)), X])
     X_val_b = np.hstack([np.ones((X_val.shape[0], 1)), X_val])
 
-    # Losowa inicjalizacja wag
     weights = np.random.randn(n_features + 1, n_classes)
 
     for epoch in range(epochs):
@@ -89,13 +84,12 @@ def logistic_regression_train(X, Y, X_val, Y_val, lr=0.1, epochs=1000, batch_siz
 
             grad = X_batch.T @ (probs - Y_batch) / batch_size
 
-            # Dodaj regularyzację w zależności od wybranego typu (pomijamy bias)
             if reg_type == 'l2':
-                grad[1:] += reg_lambda * weights[1:]    #o tu sobie jest pochodna dla l2 z pominięciem biasu
+                grad[1:] += reg_lambda * weights[1:]  
             elif reg_type == 'l1':
-                grad[1:] += reg_lambda * np.sign(weights[1:])  #to samo tylko wzorek dla l1
+                grad[1:] += reg_lambda * np.sign(weights[1:]) 
 
-            weights -= lr * grad       #aktualizacja wag modelu na podstawie wyliczonego gradientu
+            weights -= lr * grad     
 
         if epoch % 100 == 0 or epoch == epochs - 1:
             train_probs = softmax(X_b @ weights)
@@ -109,7 +103,6 @@ def logistic_regression_train(X, Y, X_val, Y_val, lr=0.1, epochs=1000, batch_siz
     return weights
 
 
-#oblicza prawdopodobieństwa przynależności dla poszczególnych klas
 def predict(X, weights):
     X_b = np.hstack([np.ones((X.shape[0], 1)), X]) #bias
     logits = X_b @ weights
@@ -118,8 +111,8 @@ def predict(X, weights):
 
 def evaluate_model(X, y_true, weights, encoder, name="TEST"):
     probs = predict(X, weights)
-    preds = np.argmax(probs, axis=1)    #wybiera klasę z największym prawdopodobieństwem
-    true = np.argmax(y_true, axis=1)    #zamiana etykiet z oneHot na indeksy
+    preds = np.argmax(probs, axis=1)  
+    true = np.argmax(y_true, axis=1)   
     acc = accuracy_score(true, preds)
     loss = cross_entropy_loss(y_true, probs)
     print(f"\n[{name}] Accuracy: {acc:.4f}")
@@ -128,7 +121,6 @@ def evaluate_model(X, y_true, weights, encoder, name="TEST"):
 
 start_time = time.time()
 
-#można zmienić l1 lub l2
 weights_reg = logistic_regression_train(X_train, y_train_encoded, X_val, y_val_encoded,
                                        lr=0.1, epochs=1000, batch_size=64, reg_lambda=0.1, reg_type='l2')
 
@@ -138,4 +130,5 @@ print(f"\nCzas treningu z regularyzacją: {end_time - start_time:.2f} sekund")
 evaluate_model(X_train, y_train_encoded, weights_reg, encoder, name="TRAIN")
 evaluate_model(X_val, y_val_encoded, weights_reg, encoder, name="VAL")
 evaluate_model(X_test, y_test_encoded, weights_reg, encoder, name="TEST")
+
 
