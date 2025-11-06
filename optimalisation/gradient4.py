@@ -10,7 +10,6 @@ from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 
 
-# Wczytanie danych
 data = pd.read_csv('data/obesity_data.csv')
 
 selected_cols = [
@@ -23,15 +22,12 @@ data = data[selected_cols]
 X = data.drop("NObeyesdad", axis=1)
 y = data["NObeyesdad"]
 
-# Podział na train, val, test
 X_temp, X_test_raw, y_temp, y_test_raw = train_test_split(X, y, test_size=0.2, random_state=42)
 X_train_raw, X_val_raw, y_train_raw, y_val_raw = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42)
 
-# Wykrywanie typów zmiennych
 numerical_cols = X.select_dtypes(include=['int64', 'float64']).columns
 categorical_cols = X.select_dtypes(include=['object', 'category']).columns
 
-# Pipeline przetwarzania danych
 numeric_transformer = Pipeline(steps=[
     ('imputer', SimpleImputer(strategy='mean')),
     ('scaler', StandardScaler())
@@ -46,7 +42,6 @@ preprocessor = ColumnTransformer(transformers=[
     ('cat', categorical_transformer, categorical_cols)
 ])
 
-# Funkcje modelu
 
 def softmax(z):
     exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))
@@ -98,7 +93,6 @@ def evaluate_model_detailed(X, y_true, weights, encoder, name="TEST"):
     print(f"[{name}] Loss: {loss:.4f}")
     print(f"\n[{name}] Raport klasyfikacji:\n", classification_report(true, preds, target_names=encoder.categories_[0]))
 
-# Przygotowanie danych i trening modelu
 X_train_proc = preprocessor.fit_transform(X_train_raw)
 X_val_proc = preprocessor.transform(X_val_raw)
 X_test_proc = preprocessor.transform(X_test_raw)
@@ -108,36 +102,33 @@ y_train_enc = encoder.fit_transform(y_train_raw.to_numpy().reshape(-1, 1))
 y_val_enc = encoder.transform(y_val_raw.to_numpy().reshape(-1, 1))
 y_test_enc = encoder.transform(y_test_raw.to_numpy().reshape(-1, 1))
 
-# --- 1. Model na oryginalnych danych ---
 weights_orig = logistic_regression_train(X_train_proc, y_train_enc)
 
-# --- 2. Oversampling SMOTE ---
 smote = SMOTE(random_state=42)
 X_smote, y_smote = smote.fit_resample(X_train_proc, np.argmax(y_train_enc, axis=1))
 y_smote_enc = np.eye(y_train_enc.shape[1])[y_smote]
 weights_smote = logistic_regression_train(X_smote, y_smote_enc)
 
-# --- 3. Undersampling ---
 rus = RandomUnderSampler(random_state=42)
 X_rus, y_rus = rus.fit_resample(X_train_proc, np.argmax(y_train_enc, axis=1))
 y_rus_enc = np.eye(y_train_enc.shape[1])[y_rus]
 weights_rus = logistic_regression_train(X_rus, y_rus_enc)
 
-# --- Ewaluacja na zbiorze testowym ---
-print("\n--- Final evaluation on TEST set ---")
+print("\nEvaluation on TEST set")
 print("Original model:")
 evaluate_model_detailed(X_test_proc, y_test_enc, weights_orig, encoder, name="TEST - Original")
-print("Rozkład klas - oryginalne dane:")
+print("Class distribution - original data:")
 print(np.bincount(np.argmax(y_train_enc, axis=1)))
 
 print("\nSMOTE model:")
 evaluate_model_detailed(X_test_proc, y_test_enc, weights_smote, encoder, name="TEST - SMOTE")
-print("\nRozkład klas - po SMOTE:")
+print("\nClass distribution - after SMOTE:")
 print(np.bincount(y_smote))
 
 
 print("\nUndersampling model:")
 evaluate_model_detailed(X_test_proc, y_test_enc, weights_rus, encoder, name="TEST - Undersampling")
-print("\nRozkład klas - po undersamplingu:")
+print("\nClass distribution - after undersamplingu:")
 print(np.bincount(y_rus))
+
 
