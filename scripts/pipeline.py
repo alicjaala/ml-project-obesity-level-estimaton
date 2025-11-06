@@ -45,7 +45,7 @@ model = Pipeline([
     ('classifier', LogisticRegression(max_iter=1000))
 ])
 
-print("\n=============== REGRESJA LOGISTYCZNA ===============")
+print("\nLOGISTIC REGRESSION")
 
 model.fit(X_train, y_train)
 
@@ -59,4 +59,5 @@ print(f"\nTrain Accuracy: {train_acc:.4f}")
 print(f"Test Accuracy:  {test_acc:.4f}")
 print("\nClassification Report (Test):")
 print(classification_report(y_test, y_test_pred))
+
 
