@@ -8,7 +8,6 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score
 
-# 1. Wczytanie danych
 data = pd.read_csv('data/obesity_data.csv')
 
 selected_cols = [
@@ -20,7 +19,6 @@ data = data[selected_cols]
 X = data.drop("NObeyesdad", axis=1)
 y = data["NObeyesdad"]
 
-# 2. Przetwarzanie danych
 numerical_cols = X.select_dtypes(include=['int64', 'float64']).columns
 categorical_cols = X.select_dtypes(include=['object']).columns
 
@@ -35,25 +33,18 @@ preprocessor = ColumnTransformer([
     ]), categorical_cols)
 ])
 
-# 3. Pipeline z regresją logistyczną
 pipeline = Pipeline([
     ('preprocessor', preprocessor),
     ('classifier', LogisticRegression(max_iter=1000))
 ])
 
-# 4. Walidacja krzyżowa
-#obiekt dzielący dane na 3 części zachowując proporcje między klasami
 skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
 train_accuracies = []
 test_accuracies = []
 
-#skf.split generuje indeksy dla podziału dla zbiorów train i test
-#enumarate zaczyna numerowanie od 1
 for fold, (train_idx, test_idx) in enumerate(skf.split(X, y), 1):
 
-    #tworzę foldy treningowe i testowe na podstawie indeksów
-    #iloc wybiera odpowiednie wiersze z ramki danych według indeksów
     X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
     y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
@@ -74,8 +65,8 @@ for fold, (train_idx, test_idx) in enumerate(skf.split(X, y), 1):
     print("Classification Report (Test):")
     print(classification_report(y_test, y_test_pred))
 
-# 5. Podsumowanie
-print("\n=========== PODSUMOWANIE ===========")
-print(f"Średnia Train Accuracy: {np.mean(train_accuracies):.4f}")
-print(f"Średnia Test Accuracy:  {np.mean(test_accuracies):.4f}")
-print(f"Odchylenie std (Test):  {np.std(test_accuracies):.4f}")
+print("\nRESULTS")
+print(f"Average Train Accuracy: {np.mean(train_accuracies):.4f}")
+print(f"Average Test Accuracy:  {np.mean(test_accuracies):.4f}")
+print(f"Standard deviation (Test):  {np.std(test_accuracies):.4f}")
+
